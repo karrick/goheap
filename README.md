@@ -9,10 +9,12 @@ that is not. Both MinHeap and LockingMinHeap store all nodes in a
 slice of key-value pairs, and provide efficient access to data within
 the heaps.
 
+```
 Operation | Best Case | Average Case | Worst Case
 ----------+-----------+--------------+-----------
 Get       | O(lg N)   | O(2 lg N)    | O(2 lg N)
 Put       | O(1)      | O(lg N)      | O(lg N)
+```
 
 The best case O(1) efficiency of Put is guaranteed when keys are
 monotomically increasing values.
