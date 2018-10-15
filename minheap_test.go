@@ -74,7 +74,32 @@ func TestMinHeap(t *testing.T) {
 	})
 
 	t.Run("update key's value", func(t *testing.T) {
-		t.Run("key new", func(t *testing.T) {
+		t.Run("empty heap", func(t *testing.T) {
+			var mh goheap.MinHeap
+
+			mh.Update(23, func(previous interface{}, ok bool) interface{} {
+				if ok {
+					t.Fatalf("GOT: %v; WANT: %v", ok, false)
+				}
+				return "23"
+			})
+
+			for {
+				v, ok := mh.Get()
+				if !ok {
+					t.Fatalf("Could not find key: %v", 23)
+				}
+				value, ok := v.(string)
+				if !ok {
+					t.Fatalf("GOT: %v; WANTED: %v", ok, true)
+				}
+				if value == "23" {
+					return
+				}
+			}
+		})
+
+		t.Run("new key", func(t *testing.T) {
 			var mh goheap.MinHeap
 			mh.Put(42, "42")
 			mh.Put(13, "13")
@@ -103,32 +128,92 @@ func TestMinHeap(t *testing.T) {
 		})
 
 		t.Run("key exists", func(t *testing.T) {
-			var mh goheap.MinHeap
-			mh.Put(42, "42")
-			mh.Put(13, "13")
-			mh.Put(8, "8")
-			mh.Put(23, "23")
+			t.Run("first", func(t *testing.T) {
+				var mh goheap.MinHeap
+				mh.Put(42, "42")
+				mh.Put(13, "13")
+				mh.Put(8, "8")
+				mh.Put(23, "23")
 
-			mh.Update(23, func(previous interface{}, ok bool) interface{} {
-				if !ok {
-					t.Fatalf("GOT: %v; WANT: %v", ok, true)
+				mh.Update(8, func(previous interface{}, ok bool) interface{} {
+					if !ok {
+						t.Fatalf("GOT: %v; WANT: %v", ok, true)
+					}
+					return "*8*"
+				})
+
+				for {
+					v, ok := mh.Get()
+					if !ok {
+						t.Fatalf("Could not find key: %v", 23)
+					}
+					value, ok := v.(string)
+					if !ok {
+						t.Fatalf("GOT: %v; WANTED: %v", ok, true)
+					}
+					if value == "*8*" {
+						return
+					}
 				}
-				return "*23*"
 			})
 
-			for {
-				v, ok := mh.Get()
-				if !ok {
-					t.Fatalf("Could not find key: %v", 23)
+			t.Run("middle", func(t *testing.T) {
+				var mh goheap.MinHeap
+				mh.Put(42, "42")
+				mh.Put(13, "13")
+				mh.Put(8, "8")
+				mh.Put(23, "23")
+
+				mh.Update(23, func(previous interface{}, ok bool) interface{} {
+					if !ok {
+						t.Fatalf("GOT: %v; WANT: %v", ok, true)
+					}
+					return "*23*"
+				})
+
+				for {
+					v, ok := mh.Get()
+					if !ok {
+						t.Fatalf("Could not find key: %v", 23)
+					}
+					value, ok := v.(string)
+					if !ok {
+						t.Fatalf("GOT: %v; WANTED: %v", ok, true)
+					}
+					if value == "*23*" {
+						return
+					}
 				}
-				value, ok := v.(string)
-				if !ok {
-					t.Fatalf("GOT: %v; WANTED: %v", ok, true)
+			})
+
+			t.Run("last", func(t *testing.T) {
+				var mh goheap.MinHeap
+				mh.Put(42, "42")
+				mh.Put(13, "13")
+				mh.Put(8, "8")
+				mh.Put(23, "23")
+
+				mh.Update(42, func(previous interface{}, ok bool) interface{} {
+					if !ok {
+						t.Fatalf("GOT: %v; WANT: %v", ok, true)
+					}
+					return "*42*"
+				})
+
+				for {
+					v, ok := mh.Get()
+					if !ok {
+						t.Fatalf("Could not find key: %v", 23)
+					}
+					value, ok := v.(string)
+					if !ok {
+						t.Fatalf("GOT: %v; WANTED: %v", ok, true)
+					}
+					if value == "*42*" {
+						return
+					}
 				}
-				if value == "*23*" {
-					return
-				}
-			}
+			})
 		})
 	})
 }

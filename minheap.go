@@ -94,25 +94,50 @@ func (mh *MinHeap) Put(key int64, value interface{}) {
 // This data structure supports having multiple copies of the same key. However,
 // when the client uses the Update method, this data structure will only find
 // the top most node with that key.
-func (mh *MinHeap) Update(key int64, callback func(interface{}, bool) interface{}) {
-	// Because of how a heap data structure is built, one cannot know whether to
-	// branch to a node's left or right child to find a particular node
-	// key. Therefore this operation must scan each element of the tree from the
-	// root until it finds the desired key, and has a worst case performance of
-	// O(n) and an average case performance of O(n/2).
+func (mh *MinHeap) Update(key int64, callback func(interface{}, bool) interface{}) bool {
 	l := len(mh.nodes)
-	for i := 0; i < l; i++ {
-		if mh.nodes[i].key == key {
-			// found node
-			mh.nodes[i].value = callback(mh.nodes[i].value, true)
-			return
-		}
+	if l == 0 {
+		// Empty heap; create new node with value from callback.
+		value := callback(nil, false)
+		mh.nodes = append(mh.nodes, node{key: key, value: value})
+		return true
 	}
 
-	// Key was not found, therefore create it and bubble up.
-	value := callback(nil, false)
-	mh.nodes = append(mh.nodes, node{key: key, value: value})
-	mh.bubbleUp(key, value, l)
+	// i is the index of the node being visited, starting with node at index 0
+	var i int
+
+	// ii is the queue of indexes to visit, starting with an empty list, because
+	// already know the first node to visit is at index 0
+	var ii []int
+
+	for {
+		if mh.nodes[i].key < key {
+			// When key is larger, then enqueue _its_ children into queue.
+			if c := i<<1 + 1; c < l {
+				ii = append(ii, c)
+				if c++; c < l {
+					ii = append(ii, c)
+				}
+			}
+		} else if mh.nodes[i].key == key {
+			// Found node.
+			mh.nodes[i].value = callback(mh.nodes[i].value, true)
+			return true
+		}
+
+		if len(ii) == 0 {
+			// Key was not found, therefore create it and bubble up.
+			value := callback(nil, false)
+			mh.nodes = append(mh.nodes, node{key: key, value: value})
+			mh.bubbleUp(key, value, l)
+			return false
+		}
+
+		// Shift item from left of queue.
+		i, ii = ii[0], ii[1:]
+	}
+
+	// NOT REACHED
 }
 
 // bubbleUp walks from the bottom of one tree branch back towards the root while
