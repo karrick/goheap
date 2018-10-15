@@ -72,6 +72,65 @@ func TestMinHeap(t *testing.T) {
 			}
 		})
 	})
+
+	t.Run("update key's value", func(t *testing.T) {
+		t.Run("key new", func(t *testing.T) {
+			var mh goheap.MinHeap
+			mh.Put(42, "42")
+			mh.Put(13, "13")
+			mh.Put(8, "8")
+
+			mh.Update(23, func(previous interface{}, ok bool) interface{} {
+				if ok {
+					t.Fatalf("GOT: %v; WANT: %v", ok, false)
+				}
+				return "23"
+			})
+
+			for {
+				v, ok := mh.Get()
+				if !ok {
+					t.Fatalf("Could not find key: %v", 23)
+				}
+				value, ok := v.(string)
+				if !ok {
+					t.Fatalf("GOT: %v; WANTED: %v", ok, true)
+				}
+				if value == "23" {
+					return
+				}
+			}
+		})
+
+		t.Run("key exists", func(t *testing.T) {
+			var mh goheap.MinHeap
+			mh.Put(42, "42")
+			mh.Put(13, "13")
+			mh.Put(8, "8")
+			mh.Put(23, "23")
+
+			mh.Update(23, func(previous interface{}, ok bool) interface{} {
+				if !ok {
+					t.Fatalf("GOT: %v; WANT: %v", ok, true)
+				}
+				return "*23*"
+			})
+
+			for {
+				v, ok := mh.Get()
+				if !ok {
+					t.Fatalf("Could not find key: %v", 23)
+				}
+				value, ok := v.(string)
+				if !ok {
+					t.Fatalf("GOT: %v; WANTED: %v", ok, true)
+				}
+				if value == "*23*" {
+					return
+				}
+			}
+		})
+	})
 }
 
 func BenchmarkMinHeapmarkBuildHeap(b *testing.B) {

@@ -84,6 +84,37 @@ func (mh *MinHeap) Put(key int64, value interface{}) {
 	mh.bubbleUp(key, value, i)
 }
 
+// Update searches for key and invokes callback with key's associated value,
+// waits for callback to return a new value, and stores callback's return value
+// as the new value for key. When key is not found, callback will be invoked
+// with nil and false to signify the key was not found. After this method
+// returns, the key will exist in the tree with the new value returned by the
+// callback function.
+//
+// This data structure supports having multiple copies of the same key. However,
+// when the client uses the Update method, this data structure will only find
+// the top most node with that key.
+func (mh *MinHeap) Update(key int64, callback func(interface{}, bool) interface{}) {
+	// Because of how a heap data structure is built, one cannot know whether to
+	// branch to a node's left or right child to find a particular node
+	// key. Therefore this operation must scan each element of the tree from the
+	// root until it finds the desired key, and has a worst case performance of
+	// O(n) and an average case performance of O(n/2).
+	l := len(mh.nodes)
+	for i := 0; i < l; i++ {
+		if mh.nodes[i].key == key {
+			// found node
+			mh.nodes[i].value = callback(mh.nodes[i].value, true)
+			return
+		}
+	}
+
+	// Key was not found, therefore create it and bubble up.
+	value := callback(nil, false)
+	mh.nodes = append(mh.nodes, node{key: key, value: value})
+	mh.bubbleUp(key, value, l)
+}
+
 // bubbleUp walks from the bottom of one tree branch back towards the root while
 // node values are less than lastUsed, moving larger values back down towards
 // the branch we started from. Once the parent's value is smaller than lastUsed,
