@@ -74,6 +74,11 @@ func (mh *MinHeap) Get() (interface{}, bool) {
 	return value, true
 }
 
+// Len returns the number of items in the heap.
+func (mh *MinHeap) Len() int {
+	return len(mh.nodes)
+}
+
 // Put will insert the specified value with the specified time into the heap in
 // max of O(lg N) time.
 func (mh *MinHeap) Put(key int64, value interface{}) {

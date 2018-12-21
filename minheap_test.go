@@ -11,6 +11,9 @@ import (
 func TestMinHeap(t *testing.T) {
 	t.Run("get from empty", func(t *testing.T) {
 		var mh goheap.MinHeap
+		if got, want := mh.Len(), 0; got != want {
+			t.Errorf("GOT: %v; WANT: %v", got, want)
+		}
 		_, ok := mh.Get()
 		if got, want := ok, false; got != want {
 			t.Errorf("GOT: %v; WANT: %v", got, want)
@@ -22,6 +25,9 @@ func TestMinHeap(t *testing.T) {
 		mh.Put(13, "13")
 
 		t.Run("returns item", func(t *testing.T) {
+			if got, want := mh.Len(), 1; got != want {
+				t.Errorf("GOT: %v; WANT: %v", got, want)
+			}
 			v, ok := mh.Get()
 			if got, want := ok, true; got != want {
 				t.Errorf("GOT: %v; WANT: %v", got, want)
@@ -43,6 +49,10 @@ func TestMinHeap(t *testing.T) {
 		mh.Put(42, "42")
 		mh.Put(13, "13")
 		mh.Put(8, "8")
+
+		if got, want := mh.Len(), 3; got != want {
+			t.Errorf("GOT: %v; WANT: %v", got, want)
+		}
 
 		t.Run("first out is the smallest", func(t *testing.T) {
 			v, ok := mh.Get()

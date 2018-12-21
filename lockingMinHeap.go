@@ -29,6 +29,14 @@ func (lh *LockingMinHeap) Get() (interface{}, bool) {
 	return v, ok
 }
 
+// Len returns the number of items in the heap.
+func (lh *LockingMinHeap) Len() int {
+	lh.lock.Lock()
+	l := lh.heap.Len()
+	lh.lock.Unlock()
+	return l
+}
+
 // Put will insert the specified key and value into the heap in max of O(lg N)
 // time after it obtains an exclusive lock on the heap.
 func (lh *LockingMinHeap) Put(k int64, v interface{}) {
